@@ -1,0 +1,259 @@
+# ROM Manager TUI Installation Manifest
+# Manifest Version: 2.0.0 (manifest format specification)
+
+manifest_version: 2.0.0
+
+# Package Metadata
+package:
+  name: "rom-manager-tui"
+  version: 0.0.1  # Initial release
+  type: application
+  description: "Terminal user interface for managing ROM collections, built with OpenTUI"
+  repository: "https://github.com/AIntelligentTech/rom-manager-tui"
+  license: "MIT"
+  authors:
+    - "AIntelligent Technologies"
+
+# Runtime Requirements
+runtime:
+  - name: bun
+    version: ">=1.0.0"
+    required: true
+    purpose: "JavaScript runtime and package manager"
+    fallback: "node >=18.0.0"
+
+  - name: zig
+    version: ">=0.15.2"
+    required: true
+    purpose: "Build OpenTUI native modules"
+
+  - name: git
+    version: ">=2.25.0"
+    required: false
+    purpose: "Version control"
+
+# Dependencies
+dependencies:
+  npm:
+    - name: "@opentui/core"
+      version: "^0.1.75"
+      purpose: "OpenTUI core library"
+
+    - name: "@opentui/react"
+      version: "^0.1.75"
+      purpose: "React reconciler for OpenTUI"
+
+  external:
+    - name: claude-code
+      version: ">=1.0.0"
+      purpose: "Development skills and tooling"
+
+# Installation Phases
+installation:
+  pre_install:
+    - name: "Verify runtime"
+      type: validation
+      description: "Check Bun or Node.js availability"
+      command: |
+        if command -v bun &> /dev/null; then
+          echo "Bun found: $(bun --version)"
+        elif command -v node &> /dev/null; then
+          echo "Node.js found: $(node --version)"
+        else
+          echo "Error: Neither Bun nor Node.js found"
+          exit 1
+        fi
+
+    - name: "Verify Zig"
+      type: validation
+      description: "Check Zig compiler for native module builds"
+      command: |
+        if ! command -v zig &> /dev/null; then
+          echo "Warning: Zig not found. OpenTUI features may be limited."
+          echo "Install Zig 0.15.2+ from https://ziglang.org/download/"
+        else
+          echo "Zig found: $(zig version)"
+        fi
+
+    - name: "Check terminal compatibility"
+      type: validation
+      description: "Verify ANSI-compatible terminal"
+      command: |
+        if [ -z "$TERM" ]; then
+          echo "Warning: TERM not set. Terminal compatibility uncertain."
+        elif [[ "$TERM" != *"256color"* ]]; then
+          echo "Warning: Terminal may not support 256 colors ($TERM)"
+        else
+          echo "Terminal: $TERM (compatible)"
+        fi
+
+  install:
+    - name: "Install npm dependencies"
+      type: command
+      command: |
+        if command -v bun &> /dev/null; then
+          bun install
+        else
+          npm install
+        fi
+
+    - name: "Build native modules"
+      type: command
+      command: |
+        if command -v bun &> /dev/null; then
+          bun run build
+        else
+          npm run build
+        fi
+
+    - name: "Setup bin scripts"
+      type: command
+      command: |
+        chmod +x bin/release
+        [ -f bin/rom-manager-tui ] && chmod +x bin/rom-manager-tui
+
+  post_install:
+    - name: "Verify installation"
+      type: validation
+      description: "Check that required files exist"
+      command: |
+        test -f VERSION && \
+        test -f package.json && \
+        test -f bin/release
+
+    - name: "Display installation summary"
+      type: notification
+      message: |
+        ROM Manager TUI installed successfully!
+
+        Version: 0.0.1
+        OpenTUI: v0.1.75
+
+        Available skills:
+          - /opentui-tui-development
+          - /opentui-layout-review
+
+        Next steps:
+          1. Run: bun run dev
+          2. Or: bin/rom-manager-tui
+
+# Installation Footprint
+footprint:
+  root_directory: "."
+  files:
+    - path: "VERSION"
+      type: version-marker
+      managed_by: installer
+
+    - path: "package.json"
+      type: package-manifest
+      managed_by: user
+
+    - path: "bin/release"
+      type: script
+      permissions: "0755"
+      managed_by: installer
+
+    - path: "src/"
+      type: source-directory
+      managed_by: user
+
+    - path: "docs/"
+      type: documentation-directory
+      managed_by: user
+
+    - path: ".claude/skills/"
+      type: skills-directory
+      managed_by: installer
+
+# Release Configuration
+release:
+  strategy: semantic-versioning
+  version_file: "VERSION"
+  changelog_file: "CHANGELOG.md"
+  changelog_format: "keep-a-changelog"
+
+  steps:
+    - id: "validate"
+      type: "validation"
+      description: "Pre-release validation checks"
+      checks:
+        - "All tests pass"
+        - "VERSION file matches package.json"
+        - "CHANGELOG.md updated"
+        - "No uncommitted changes"
+
+    - id: "test"
+      type: "testing"
+      description: "Run test suite"
+      command: "bun test"
+
+    - id: "build"
+      type: "build"
+      description: "Build for release"
+      command: "bun run build"
+
+    - id: "changelog"
+      type: "changelog"
+      source: "git"
+      format: "keep-a-changelog"
+      sections:
+        - Added
+        - Changed
+        - Deprecated
+        - Removed
+        - Fixed
+        - Security
+
+    - id: "git-commit"
+      type: "git-operation"
+      description: "Commit version bump"
+      files:
+        - VERSION
+        - package.json
+        - CHANGELOG.md
+      message: "chore(release): bump version to {version}"
+
+    - id: "git-tag"
+      type: "git-operation"
+      tag_format: "v{version}"
+      message: "Release version {version}"
+
+    - id: "git-push"
+      type: "git-operation"
+      push_tags: true
+      push_branches:
+        - main
+
+# Documentation Configuration
+documentation:
+  versioning: true
+  version_aware: true
+
+  docs:
+    - path: "README.md"
+      type: readme
+      disclosure_level: L2
+      code_version_pin: "0.0.1"
+
+    - path: "docs/architecture.md"
+      type: architecture
+      disclosure_level: L3
+      code_version_pin: "0.0.1"
+
+# Metadata
+metadata:
+  opentui_version: "0.1.75"
+  opentui_skill_version: "1.0.0"
+  project_type: "tui-application"
+  target_platforms:
+    - linux
+    - macos
+    - windows-wsl
+  tags:
+    - rom
+    - rom-manager
+    - tui
+    - terminal-ui
+    - opentui
+    - retro-gaming

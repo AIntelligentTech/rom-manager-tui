@@ -1,0 +1,40 @@
+{
+  "name": "rom-manager-tui",
+  "version": "0.0.1",
+  "description": "Terminal user interface for managing ROM collections, built with OpenTUI",
+  "type": "module",
+  "main": "src/index.tsx",
+  "scripts": {
+    "dev": "bun run src/index.tsx",
+    "start": "bun run src/index.tsx",
+    "build": "bun build src/index.tsx --outdir=dist",
+    "test": "bun test",
+    "lint": "eslint src/",
+    "format": "prettier --write src/"
+  },
+  "keywords": [
+    "rom",
+    "rom-manager",
+    "tui",
+    "terminal-ui",
+    "opentui",
+    "retro-gaming"
+  ],
+  "author": "AIntelligent Technologies",
+  "license": "MIT",
+  "dependencies": {
+    "@opentui/core": "^0.1.75",
+    "@opentui/react": "^0.1.75",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=18.0.0"
+  }
+}
