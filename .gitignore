@@ -7,6 +7,8 @@ node_modules/
 dist/
 build/
 *.js
+!.eslintrc.js
+!.prettierrc.js
 *.d.ts
 
 # Environment
@@ -16,6 +18,8 @@ build/
 
 # IDEs
 .vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo

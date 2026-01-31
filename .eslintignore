@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+coverage
+.bun
+*.lock
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+.github
+docs

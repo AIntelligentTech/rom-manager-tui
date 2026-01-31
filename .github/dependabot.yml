@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '03:00'
+    open-pull-requests-limit: 5
+    reviewers:
+      - tonydeverill
+    assignees:
+      - tonydeverill
+    commit-message:
+      prefix: 'chore(deps):'
+      prefix-development: 'chore(dev):'
+      include: 'scope'
+    allow:
+      - dependency-type: 'all'
+    ignore:
+      - dependency-name: 'bun'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+      day: 'monday'
+      time: '03:00'
+    reviewers:
+      - tonydeverill
+    assignees:
+      - tonydeverill
+    commit-message:
+      prefix: 'chore(ci):'
+      include: 'scope'
