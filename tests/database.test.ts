@@ -6,26 +6,25 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { DatabaseManager } from '../src/models/database';
 import { GameInput } from '../src/models/game';
-import { tmpSync } from 'tmp';
-import { unlinkSync } from 'fs';
+import { mkdtempSync, unlinkSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 describe('DatabaseManager', () => {
   let db: DatabaseManager;
   let dbPath: string;
 
   beforeEach(() => {
-    // Create temporary database
-    dbPath = tmpSync().name;
+    const dir = mkdtempSync(join(tmpdir(), 'rom-test-'));
+    dbPath = join(dir, 'test.db');
     db = new DatabaseManager(dbPath);
   });
 
   afterEach(() => {
     db.close();
-    if (dbPath) {
-      try {
-        unlinkSync(dbPath);
-      } catch {}
-    }
+    try {
+      unlinkSync(dbPath);
+    } catch {}
   });
 
   describe('initialization', () => {

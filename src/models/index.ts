@@ -3,7 +3,7 @@
  * Central export point for all data models and managers
  */
 
-export * from './game.js';
-export * from './database.js';
-export * from './config.js';
-export * from './library.js';
+export * from './game';
+export * from './database';
+export * from './config';
+export * from './library';

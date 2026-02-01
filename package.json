@@ -1,7 +1,7 @@
 {
   "name": "rom-manager-tui",
   "version": "1.0.0",
-  "description": "Terminal user interface for managing ROM collections, built with OpenTUI",
+  "description": "Terminal user interface for managing ROM collections",
   "type": "module",
   "main": "src/index.tsx",
   "scripts": {
@@ -22,29 +22,21 @@
     "rom-manager",
     "tui",
     "terminal-ui",
-    "opentui",
-    "retro-gaming"
+    "retro-gaming",
+    "emulation"
   ],
   "author": "AIntelligent Technologies",
   "license": "MIT",
   "dependencies": {
-    "@opentui/core": "^0.1.75",
-    "@opentui/react": "^0.1.75",
-    "react": "^18.2.0",
-    "better-sqlite3": "^9.2.2",
-    "yaml": "^2.4.0",
-    "uuid": "^9.0.1"
+    "yaml": "^2.4.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/better-sqlite3": "^7.6.8",
+    "@types/bun": "latest",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3"
   },

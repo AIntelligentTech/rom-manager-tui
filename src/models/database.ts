@@ -3,12 +3,12 @@
  * Handles all database operations for ROM library
  */
 
-import Database from 'better-sqlite3';
+import { Database } from 'bun:sqlite';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
-import { Game, GameInput, GameStats } from './game.js';
-import { v4 as uuidv4 } from 'uuid';
+import { Game, GameInput, GameStats } from './game';
+import { randomUUID } from 'crypto';
 
 /**
  * Database initialization and schema
@@ -68,13 +68,12 @@ CREATE INDEX IF NOT EXISTS idx_crc32 ON games(crc32);
 CREATE INDEX IF NOT EXISTS idx_must_have ON games(must_have_series);
 CREATE INDEX IF NOT EXISTS idx_path ON games(path);
 
--- Full-text search table
+-- Full-text search table (standalone, synced manually)
 CREATE VIRTUAL TABLE IF NOT EXISTS games_fts USING fts5(
+  game_id,
   title,
   filename,
-  description,
-  content='games',
-  content_rowid='id'
+  description
 );
 
 -- Collections table
@@ -106,7 +105,7 @@ CREATE INDEX IF NOT EXISTS idx_collection_games ON collection_games(collection_i
  * DatabaseManager class
  */
 export class DatabaseManager {
-  private db: Database.Database;
+  private db: InstanceType<typeof Database>;
   private dbPath: string;
 
   /**
@@ -130,7 +129,7 @@ export class DatabaseManager {
     this.db = new Database(this.dbPath);
 
     // Enable foreign keys
-    this.db.pragma('foreign_keys = ON');
+    this.db.exec('PRAGMA foreign_keys = ON');
 
     // Initialize schema
     this.initializeSchema();
@@ -167,7 +166,7 @@ export class DatabaseManager {
   /**
    * Get raw database instance (for advanced queries)
    */
-  getRawDatabase(): Database.Database {
+  getRawDatabase(): InstanceType<typeof Database> {
     return this.db;
   }
 
@@ -234,7 +233,7 @@ export class DatabaseManager {
       return id;
     } else {
       // Insert new game
-      const newId = game.crc32 ? this.getGameByCrc32(game.crc32)?.id : uuidv4();
+      const newId = game.crc32 ? this.getGameByCrc32(game.crc32)?.id : randomUUID();
 
       const insert = this.db.prepare(`
         INSERT INTO games (
@@ -356,17 +355,21 @@ export class DatabaseManager {
    * Search games by full-text search
    */
   search(query: string, limit = 50): Game[] {
-    const stmt = this.db.prepare(`
-      SELECT g.* FROM games g
-      WHERE g.id IN (
-        SELECT id FROM games_fts WHERE games_fts MATCH ?
-      )
-      ORDER BY g.title ASC
-      LIMIT ?
-    `);
-
-    const rows = stmt.all(query, limit) as any[];
-    return rows.map(row => this.rowToGame(row));
+    // Try FTS first, fall back to LIKE search
+    try {
+      const stmt = this.db.prepare(`
+        SELECT g.* FROM games g
+        WHERE g.id IN (
+          SELECT game_id FROM games_fts WHERE games_fts MATCH ?
+        )
+        ORDER BY g.title ASC
+        LIMIT ?
+      `);
+      const rows = stmt.all(query, limit) as any[];
+      return rows.map(row => this.rowToGame(row));
+    } catch {
+      return this.searchByTitle(query, limit);
+    }
   }
 
   /**
@@ -518,7 +521,7 @@ export class DatabaseManager {
    * Create a collection
    */
   createCollection(name: string, description?: string, maxSize?: number): string {
-    const id = uuidv4();
+    const id = randomUUID();
     const stmt = this.db.prepare(`
       INSERT INTO collections (id, name, description, max_size)
       VALUES (?, ?, ?, ?)
@@ -591,6 +594,21 @@ export class DatabaseManager {
   /**
    * Convert database row to Game object
    */
+  /**
+   * Insert a game into the FTS index
+   */
+  indexGameForSearch(game: Game): void {
+    try {
+      const stmt = this.db.prepare(`
+        INSERT OR REPLACE INTO games_fts (game_id, title, filename, description)
+        VALUES (?, ?, ?, ?)
+      `);
+      stmt.run(game.id, game.title, game.filename, game.description || '');
+    } catch {
+      // FTS index failures are non-fatal
+    }
+  }
+
   private rowToGame(row: any): Game {
     return {
       id: row.id,
@@ -629,3 +647,6 @@ export class DatabaseManager {
     };
   }
 }
+
+/** Alias for backwards compatibility */
+export { DatabaseManager as Database };

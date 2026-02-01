@@ -5,11 +5,10 @@
 
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
-import { DatabaseManager } from './database.js';
-import { ConfigManager } from './config.js';
-import { Game, GameInput } from './game.js';
-import { parseFilename, detectSystem, isROMFile } from '../utils/parser.js';
-import { v4 as uuidv4 } from 'uuid';
+import { DatabaseManager } from './database';
+import { ConfigManager } from './config';
+import { Game, GameInput } from './game';
+import { parseFilename, detectSystem, isROMFile } from '../utils/parser';
 
 /**
  * Scan result statistics

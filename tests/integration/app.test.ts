@@ -1,35 +1,31 @@
 import { describe, expect, test } from 'bun:test';
-import { Database } from '../../src/models/database';
+import { DatabaseManager } from '../../src/models/database';
 import { ConfigManager } from '../../src/models/config';
-import { existsSync, unlinkSync } from 'fs';
+import { existsSync, unlinkSync, mkdtempSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 describe('Application Integration', () => {
-  const testDbPath = '/tmp/test-rom-manager.db';
-
   test('should initialize application components', () => {
-    // Clean up any existing test database
-    if (existsSync(testDbPath)) {
-      unlinkSync(testDbPath);
-    }
+    const dir = mkdtempSync(join(tmpdir(), 'rom-int-'));
+    const testDbPath = join(dir, 'test.db');
 
     // Initialize config
     const config = new ConfigManager();
     expect(config).toBeDefined();
 
     // Initialize database
-    const db = new Database(testDbPath);
+    const db = new DatabaseManager(testDbPath);
     expect(db).toBeDefined();
 
     // Verify database is empty initially
-    const stats = db.getStatistics();
+    const stats = db.getStats();
     expect(stats.totalGames).toBe(0);
-    expect(stats.systemCounts).toEqual([]);
+    expect(Object.keys(stats.gamesBySystem)).toHaveLength(0);
 
     // Clean up
     db.close();
-    if (existsSync(testDbPath)) {
-      unlinkSync(testDbPath);
-    }
+    try { unlinkSync(testDbPath); } catch {}
   });
 
   test('should have correct default configuration', () => {

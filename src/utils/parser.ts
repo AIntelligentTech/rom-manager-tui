@@ -19,7 +19,7 @@
  * - [T+] = Translation
  */
 
-import { Region } from '../models/game.js';
+import { Region } from '../models/game';
 
 export interface ParsedFilename {
   title: string;
