@@ -39,14 +39,14 @@ function renderDashboard(stats: GameStats, config: ConfigManager): void {
 
   // Empty state onboarding
   if (stats.totalGames === 0) {
-    lines.push('\x1b[1;33m  Getting Started\x1b[0m');
+    lines.push('\x1b[1;33m  🚀 Getting Started\x1b[0m');
     lines.push('    Your library is empty. Here\'s how to get started:');
     lines.push('');
-    lines.push('    1. Press \x1b[1;37m[D]\x1b[0m to scan your Downloads folder for ROMs');
-    lines.push('    2. Or manually add ROM files to your library directory:');
+    lines.push('    \x1b[1;37m1.\x1b[0m Press \x1b[1;37m[D]\x1b[0m to scan your Downloads folder for ROMs');
+    lines.push('    \x1b[1;37m2.\x1b[0m Or manually add ROM files to your library directory:');
     lines.push(`       \x1b[36m${config.getLibraryPath()}\x1b[0m`);
     lines.push('');
-    lines.push('    \x1b[2mSupported formats: .zip, .7z, .rar, and individual ROM files\x1b[0m');
+    lines.push('    \x1b[90m💡 Tip: Supported formats include .zip, .7z, .rar, and individual ROM files\x1b[0m');
     lines.push('');
   } else {
     // Quick Stats
@@ -70,10 +70,10 @@ function renderDashboard(stats: GameStats, config: ConfigManager): void {
   }
 
   // Quick Actions
-  lines.push('\x1b[1;33m  Quick Actions\x1b[0m');
-  lines.push('    \x1b[1;37m[L]\x1b[0m Browse Library       \x1b[1;37m[D]\x1b[0m Scan Downloads');
-  lines.push('    \x1b[1;37m[C]\x1b[0m Curation Studio      \x1b[1;37m[S]\x1b[0m SD Card Manager');
-  lines.push('    \x1b[1;37m[/]\x1b[0m Search Games         \x1b[1;37m[?]\x1b[0m Help');
+  lines.push('\x1b[1;33m  ⚡ Quick Actions\x1b[0m');
+  lines.push('    \x1b[1;36m[L]\x1b[0m Browse Library       \x1b[1;36m[D]\x1b[0m Scan Downloads');
+  lines.push('    \x1b[1;36m[C]\x1b[0m Curation Studio      \x1b[1;36m[S]\x1b[0m SD Card Manager');
+  lines.push('    \x1b[1;36m[/]\x1b[0m Search Games         \x1b[1;36m[?]\x1b[0m Help');
   lines.push('');
 
   // Region breakdown
